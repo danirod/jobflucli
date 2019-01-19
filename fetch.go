@@ -44,7 +44,7 @@ var Locations = map[Location]LocationData{
 const TargetServer = "http://localhost:8000"
 
 // UserAgent keeps the user agent to be used in HTTP requests.
-const UserAgent = "jobflucli/1.0 (https://danirod.es/pkg/jobflucli)"
+const UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0"
 
 // unmarshalResponse will convert the bytearray content into offers.
 func unmarshalResponse(resp []byte) ([]Offer, error) {
