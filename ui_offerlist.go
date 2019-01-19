@@ -6,13 +6,15 @@ import (
 	"strings"
 )
 
+// OfferList is a widget that represents the list of offers downloaded.
 type OfferList struct {
 	*tview.Table
-	backingOffers   []Offer
-	backingOfferIds map[int]int
-	filterFunc      func(offer Offer) bool
+	backingOffers   []Offer                // the offers themselves.
+	backingOfferIds map[int]int            // maps each row with the underlying offer
+	filterFunc      func(offer Offer) bool // used to filter the presented offers
 }
 
+// NewOfferList returns a new offerlist widget that can be used to present offers.
 func NewOfferList() *OfferList {
 	offerList := new(OfferList)
 	offerList.Table = tview.NewTable()
@@ -21,11 +23,17 @@ func NewOfferList() *OfferList {
 	return offerList
 }
 
+// SetFilterFunc allows to filter the offers displayed in the table.
+// This function modifies the widget. Therefore, it is required to either
+// call this in the mainthread, or dispatch an event to the application.
 func (ol *OfferList) SetFilterFunc(filter func(offer Offer) bool) {
 	ol.filterFunc = filter
 	ol.reloadTable()
 }
 
+// SetOfferList updates the list of offers presented to the users.
+// This function modifies the widget. Therefore, it is required to either
+// call this in the mainthread, or dispatch an event to the application.
 func (ol *OfferList) SetOfferList(offers []Offer) {
 	ol.backingOffers = offers
 	ol.reloadTable()
