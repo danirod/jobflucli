@@ -19,7 +19,7 @@ type Offer struct {
 	// The URL that identifies this offer.
 	URL string `json:"url"`
 	// The unique ID that identifies this offer.
-	id int `json:"id"`
+	ID int `json:"id"`
 }
 
 // Context holds the application state.
@@ -43,7 +43,7 @@ func NewContext(offers []Offer) *Context {
 
 	// Build the index.
 	for _, offer := range offers {
-		context.idIndex[offer.id] = offer
+		context.idIndex[offer.ID] = offer
 
 		for _, tag := range offer.Tags {
 			if !presenceIndex[tag] {
@@ -51,7 +51,7 @@ func NewContext(offers []Offer) *Context {
 				context.tagIndex[tag] = make([]int, 0)
 				presenceIndex[tag] = true
 			}
-			context.tagIndex[tag] = append(context.tagIndex[tag], offer.id)
+			context.tagIndex[tag] = append(context.tagIndex[tag], offer.ID)
 		}
 	}
 

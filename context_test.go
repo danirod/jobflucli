@@ -7,7 +7,7 @@ import (
 
 var offers []Offer = []Offer{
 	Offer{
-		id:           1000,
+		ID:           1000,
 		URL:          "http://localhost:8080/offer/1000",
 		Description:  "This is offer number 1",
 		Company:      "ActionSoft Inc",
@@ -16,7 +16,7 @@ var offers []Offer = []Offer{
 		Tags:         []string{"alpha", "one"},
 	},
 	Offer{
-		id:           2000,
+		ID:           2000,
 		URL:          "http://localhost:8080/offer/2000",
 		Description:  "This is offer number 2",
 		Company:      "ActionRocks Inc",
@@ -25,7 +25,7 @@ var offers []Offer = []Offer{
 		Tags:         []string{"beta", "one", "two"},
 	},
 	Offer{
-		id:           3000,
+		ID:           3000,
 		URL:          "http://localhost:8080/offer/3000",
 		Description:  "This is offer number 3",
 		Company:      "ActionWare Inc",
@@ -43,7 +43,7 @@ func TestContextProperties(t *testing.T) {
 
 	cases := []int{1000, 2000, 3000}
 	for _, c := range cases {
-		if context.GetOffer(c).id != c {
+		if context.GetOffer(c).ID != c {
 			t.Errorf("GetOffer() did not return valid offer")
 		}
 	}
