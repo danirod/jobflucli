@@ -61,9 +61,7 @@ func NewUserInterface(context *Context) *UserInterface {
 		// Get the selected offer by looking the reverse map.
 		offerID := ui.jobOffersList.backingOfferIds[row]
 		offer := ui.context.GetOffer(offerID)
-		ui.jobOfferDetail.SetOffer(offer)
-		ui.pagesWidget.SendToFront("detail")
-		ui.pagesWidget.AddAndSwitchToPage("detail", ui.jobOfferDetail, true)
+		ui.SwitchToOffer(offer)
 	})
 
 	ui.jobOffersList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -76,9 +74,7 @@ func NewUserInterface(context *Context) *UserInterface {
 
 	ui.jobOfferDetail.descriptionWidget.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyRune && event.Rune() == 'q' {
-			ui.pagesWidget.SwitchToPage("list")
-			ui.application.SetFocus(ui.jobOffersList)
-			return event
+			ui.SwitchToList()
 		}
 		return event
 	})
@@ -110,6 +106,21 @@ func (ui *UserInterface) SetStatus(status string) {
 		ui.statusWidget.Clear()
 		ui.statusWidget.SetText(status)
 	})
+}
+
+func (ui *UserInterface) SwitchToList() {
+	ui.pagesWidget.SwitchToPage("list")
+	ui.application.SetFocus(ui.jobOffersList)
+	ui.SetTitle("JobFluCli | List of offers")
+	ui.SetStatus("q:Quit   j/Up:MoveUp   k/Down:MoveDown")
+}
+
+func (ui *UserInterface) SwitchToOffer(o *Offer) {
+	ui.jobOfferDetail.SetOffer(o)
+	ui.pagesWidget.SwitchToPage("detail")
+	ui.application.SetFocus(ui.jobOfferDetail)
+	ui.SetTitle("JobFluCli | Offer Information")
+	ui.SetStatus("q:Back   j/Up:MoveUp   k/Down:MoveDown")
 }
 
 // Run executes the graphical view for this application

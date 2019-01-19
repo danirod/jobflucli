@@ -38,6 +38,7 @@ func (ov *OfferView) SetOffer(offer *Offer) {
 	ov.tagsWidget.SetText(strings.Join(offer.Tags, ", "))
 	ov.urlWidget.SetText(offer.URL)
 	ov.descriptionWidget.SetText(cleanContent(offer.Description))
+	ov.descriptionWidget.ScrollToBeginning()
 }
 
 // NewOfferView initialises a new widget to be used as a page to present
