@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gdamore/tcell"
@@ -108,16 +107,23 @@ func (ui *UserInterface) reloadJobOffers() {
 	ui.jobListBackingIds = make(map[int]int)
 
 	for i, offer := range ui.context.offers {
-		// Format the offer to make it look nice.
-		position := strings.TrimSpace(offer.Position)
-		company := strings.TrimSpace(offer.Company)
-		offerCell := tview.NewTableCell(fmt.Sprintf("%s at %s", position, company))
-		offerCell.SetExpansion(1)
+		// Format timestamp
+		timestamp := offer.CreationDate.Format("2006 Jan 2, 15:04")
+		timestampCell := tview.NewTableCell(timestamp)
+		timestampCell.SetTextColor(tcell.ColorTurquoise)
+		ui.jobList.SetCell(i, 0, timestampCell)
 
-		// Then add the offer to the table.
-		ui.jobList.SetCellSimple(i, 0, offer.CreationDate.String())
-		ui.jobList.SetCellSimple(i, 1, " ")
-		ui.jobList.SetCell(i, 2, offerCell)
+		// Format the company
+		company := strings.TrimSpace(offer.Company)
+		companyCell := tview.NewTableCell(company)
+		companyCell.SetTextColor(tcell.ColorGreen)
+		ui.jobList.SetCell(i, 1, companyCell)
+
+		// Format the position
+		position := strings.TrimSpace(offer.Position)
+		positionCell := tview.NewTableCell(position)
+		positionCell.SetExpansion(1)
+		ui.jobList.SetCell(i, 2, positionCell)
 
 		// Put a backing ID so that we can refer to this offer later.
 		ui.jobListBackingIds[i] = offer.ID
