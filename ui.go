@@ -13,10 +13,6 @@ type UserInterface struct {
 	pagesWidget  *tview.Pages
 	statusWidget *tview.TextView
 
-	// Wrap the title and status labels to make them full width.
-	titleFrame  *tview.Frame
-	statusFrame *tview.Frame
-
 	// Page widgets
 	jobOffersList *OfferList
 
@@ -25,16 +21,10 @@ type UserInterface struct {
 }
 
 func (ui *UserInterface) applyTheme() {
-	ui.titleFrame.SetBackgroundColor(tcell.ColorBlue)
-	ui.titleFrame.SetBorder(false)
-	ui.titleWidget.SetBackgroundColor(tcell.ColorDefault)
+	ui.titleWidget.SetBackgroundColor(tcell.ColorBlue)
 	ui.titleWidget.SetTextColor(tcell.ColorYellow)
-
-	ui.statusFrame.SetBackgroundColor(tcell.ColorGreen)
-	ui.statusFrame.SetBorder(false)
-	ui.statusWidget.SetBackgroundColor(tcell.ColorDefault)
+	ui.statusWidget.SetBackgroundColor(tcell.ColorGreen)
 	ui.statusWidget.SetTextColor(tcell.ColorYellow)
-
 	ui.jobOffersList.SetSelectedStyle(tcell.ColorWhite, tcell.ColorBlue, tcell.AttrNone)
 }
 
@@ -65,8 +55,6 @@ func NewUserInterface(context *Context) *UserInterface {
 
 		titleWidget:  titleLabel,
 		statusWidget: statusLabel,
-		titleFrame:   tview.NewFrame(titleLabel),
-		statusFrame:  tview.NewFrame(statusLabel),
 
 		pagesWidget: tview.NewPages(),
 
