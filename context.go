@@ -7,19 +7,19 @@ import (
 // Offer is a data structure that represents a published offer.
 type Offer struct {
 	// The datetime at which the offer was registered in the site.
-	CreationDate time.Time
+	CreationDate time.Time `json:"date"`
 	// The position that the job offer is valid for.
-	Position string
+	Position string `json:"position"`
 	// The company that published this offer.
-	Company string
+	Company string `json:"company"`
 	// The list of tags that are related to this offer.
-	Tags []string
+	Tags []string `json:"tags"`
 	// The content of the offer description.
-	Description string
+	Description string `json:"description"`
 	// The URL that identifies this offer.
-	URL string
+	URL string `json:"url"`
 	// The unique ID that identifies this offer.
-	id int
+	id int `json:"id"`
 }
 
 // Context holds the application state.
