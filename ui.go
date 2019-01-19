@@ -14,7 +14,8 @@ type UserInterface struct {
 	statusWidget *tview.TextView
 
 	// Page widgets
-	jobOffersList *OfferList
+	jobOffersList  *OfferList
+	jobOfferDetail *OfferView
 
 	// Flex layout
 	layout *tview.Flex
@@ -59,15 +60,17 @@ func NewUserInterface(context *Context) *UserInterface {
 		pagesWidget: tview.NewPages(),
 
 		layout: tview.NewFlex(),
+
+		jobOffersList:  NewOfferList(),
+		jobOfferDetail: NewOfferView(),
 	}
 
-	ui.jobOffersList = NewOfferList()
-
-	ui.pagesWidget.AddPage("jobs", ui.jobOffersList, true, true)
+	ui.pagesWidget.AddPage("detail", ui.jobOfferDetail, true, true)
+	ui.jobOfferDetail.SetOffer(&ui.context.offers[0])
 
 	ui.layout.SetDirection(tview.FlexRow)
 	ui.layout.AddItem(ui.titleWidget, 1, 1, false)
-	ui.layout.AddItem(ui.pagesWidget, 0, 1, false)
+	ui.layout.AddItem(ui.pagesWidget, 0, 1, true)
 	ui.layout.AddItem(ui.statusWidget, 1, 1, false)
 
 	ui.applyTheme()
