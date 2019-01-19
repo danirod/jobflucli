@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strings"
-
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
 )
@@ -20,8 +18,7 @@ type UserInterface struct {
 	statusFrame *tview.Frame
 
 	// Page widgets
-	jobList           *tview.Table
-	jobListBackingIds map[int]int
+	jobOffersList *OfferList
 
 	// Flex layout
 	layout *tview.Flex
@@ -37,6 +34,8 @@ func (ui *UserInterface) applyTheme() {
 	ui.statusFrame.SetBorder(false)
 	ui.statusWidget.SetBackgroundColor(tcell.ColorDefault)
 	ui.statusWidget.SetTextColor(tcell.ColorYellow)
+
+	ui.jobOffersList.SetSelectedStyle(tcell.ColorWhite, tcell.ColorBlue, tcell.AttrNone)
 }
 
 func (ui *UserInterface) globalApplicationKeybidings(event *tcell.EventKey) *tcell.EventKey {
@@ -53,20 +52,6 @@ func (ui *UserInterface) globalApplicationKeybidings(event *tcell.EventKey) *tce
 	}
 
 	return event
-}
-
-func newJobListWidget(ui *UserInterface) *tview.Table {
-	table := tview.NewTable()
-	table.SetSelectable(true, false)
-	table.SetSelectedFunc(func(row, col int) {
-		backOffer := ui.jobListBackingIds[row]
-		ui.onOfferSelected(backOffer)
-	})
-	return table
-}
-
-func (ui *UserInterface) onOfferSelected(offerID int) {
-	panic(fmt.Errorf("Selected %v", ui.context.GetOffer(offerID)))
 }
 
 // NewUserInterface creates a new user interface given a context state.
@@ -88,9 +73,9 @@ func NewUserInterface(context *Context) *UserInterface {
 		layout: tview.NewFlex(),
 	}
 
-	ui.jobList = newJobListWidget(ui)
+	ui.jobOffersList = NewOfferList()
 
-	ui.pagesWidget.AddPage("jobs", ui.jobList, true, true)
+	ui.pagesWidget.AddPage("jobs", ui.jobOffersList, true, true)
 
 	ui.layout.SetDirection(tview.FlexRow)
 	ui.layout.AddItem(ui.titleWidget, 1, 1, false)
@@ -100,34 +85,6 @@ func NewUserInterface(context *Context) *UserInterface {
 	ui.applyTheme()
 
 	return ui
-}
-
-func (ui *UserInterface) reloadJobOffers() {
-	ui.jobList.Clear()
-	ui.jobListBackingIds = make(map[int]int)
-
-	for i, offer := range ui.context.offers {
-		// Format timestamp
-		timestamp := offer.CreationDate.Format("2006 Jan 2, 15:04")
-		timestampCell := tview.NewTableCell(timestamp)
-		timestampCell.SetTextColor(tcell.ColorTurquoise)
-		ui.jobList.SetCell(i, 0, timestampCell)
-
-		// Format the company
-		company := strings.TrimSpace(offer.Company)
-		companyCell := tview.NewTableCell(company)
-		companyCell.SetTextColor(tcell.ColorGreen)
-		ui.jobList.SetCell(i, 1, companyCell)
-
-		// Format the position
-		position := strings.TrimSpace(offer.Position)
-		positionCell := tview.NewTableCell(position)
-		positionCell.SetExpansion(1)
-		ui.jobList.SetCell(i, 2, positionCell)
-
-		// Put a backing ID so that we can refer to this offer later.
-		ui.jobListBackingIds[i] = offer.ID
-	}
 }
 
 func (ui *UserInterface) SetTitle(title string) {
@@ -146,7 +103,7 @@ func (ui *UserInterface) SetStatus(status string) {
 
 // Run executes the graphical view for this application
 func (ui *UserInterface) Run() error {
-	ui.reloadJobOffers()
+	ui.jobOffersList.SetOfferList(ui.context.offers)
 	ui.application.SetInputCapture(ui.globalApplicationKeybidings)
 	ui.application.SetRoot(ui.layout, true)
 	ui.application.SetFocus(ui.pagesWidget)
