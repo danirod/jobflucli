@@ -34,14 +34,6 @@ func (ui *UserInterface) globalApplicationKeybidings(event *tcell.EventKey) *tce
 		ui.application.Draw()
 		return nil
 	}
-
-	if event.Key() == tcell.KeyRune {
-		if event.Rune() == 'q' {
-			ui.application.Stop()
-			return nil
-		}
-	}
-
 	return event
 }
 
@@ -65,8 +57,36 @@ func NewUserInterface(context *Context) *UserInterface {
 		jobOfferDetail: NewOfferView(),
 	}
 
-	ui.pagesWidget.AddPage("detail", ui.jobOfferDetail, true, true)
-	ui.jobOfferDetail.SetOffer(&ui.context.offers[0])
+	ui.jobOffersList.SetSelectedFunc(func(row, col int) {
+		// Get the selected offer by looking the reverse map.
+		offerID := ui.jobOffersList.backingOfferIds[row]
+		offer := ui.context.GetOffer(offerID)
+		ui.jobOfferDetail.SetOffer(offer)
+		ui.pagesWidget.SendToFront("detail")
+		ui.pagesWidget.AddAndSwitchToPage("detail", ui.jobOfferDetail, true)
+	})
+
+	ui.jobOffersList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyRune && event.Rune() == 'q' {
+			ui.application.Stop()
+			return nil
+		}
+		return event
+	})
+
+	ui.jobOfferDetail.descriptionWidget.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyRune && event.Rune() == 'q' {
+			ui.pagesWidget.SwitchToPage("list")
+			ui.application.SetFocus(ui.jobOffersList)
+			return event
+		}
+		return event
+	})
+
+	ui.pagesWidget.AddPage("list", ui.jobOffersList, true, false)
+	ui.pagesWidget.AddPage("detail", ui.jobOfferDetail, true, false)
+	ui.pagesWidget.ShowPage("list")
+	ui.application.SetFocus(ui.jobOffersList)
 
 	ui.layout.SetDirection(tview.FlexRow)
 	ui.layout.AddItem(ui.titleWidget, 1, 1, false)
