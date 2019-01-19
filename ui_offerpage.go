@@ -2,9 +2,15 @@ package main
 
 import (
 	"github.com/gdamore/tcell"
+	"github.com/lunny/html2md"
 	"github.com/rivo/tview"
 	"strings"
 )
+
+func cleanContent(content string) string {
+	mdified := html2md.Convert(content)
+	return strings.TrimSpace(mdified)
+}
 
 // OfferView is a tview widget used to represent an offer page. It paints the
 // information about the widget on the top of the page, and the remaining
@@ -31,7 +37,7 @@ func (ov *OfferView) SetOffer(offer *Offer) {
 	ov.dateWidget.SetText(offer.CreationDate.Format("Mon, 2 Jan 2006 15:04:05"))
 	ov.tagsWidget.SetText(strings.Join(offer.Tags, ", "))
 	ov.urlWidget.SetText(offer.URL)
-	ov.descriptionWidget.SetText(offer.Description)
+	ov.descriptionWidget.SetText(cleanContent(offer.Description))
 }
 
 // NewOfferView initialises a new widget to be used as a page to present
@@ -58,14 +64,6 @@ func NewOfferView() *OfferView {
 
 	// The description widget renders the offer content.
 	descriptionWidget := tview.NewTextView().SetWordWrap(true).SetScrollable(true)
-	descriptionSizingFunc := func(screen tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		ix, iy, iw, ih := offerView.descriptionWidget.GetInnerRect()
-		if iw > 65 {
-			return ix, iy, 65, ih
-		}
-		return ix, iy, iw, ih
-	}
-	descriptionWidget.SetDrawFunc(descriptionSizingFunc)
 	offerView.descriptionWidget = descriptionWidget
 
 	// Reflow the stuff.
