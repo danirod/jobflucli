@@ -11,6 +11,14 @@ jobflucli
     open suspicious tabs on your work computer?  This app is for you,
     my friend.
 
+    Have a screenshot here.
+
+
+
+    Oh yeah, I forgot that this was a txt file, not a Markdown.
+    https://danirod.es/pkg/jobflucli/jobflucli.png, I guess.
+
+
 Installation
 ============
 
