@@ -36,7 +36,8 @@ var offers []Offer = []Offer{
 }
 
 func TestContextProperties(t *testing.T) {
-	context := NewContext(offers)
+	context := new(Context)
+	context.SetOffers(offers)
 	if context.CountOffers() != 3 {
 		t.Errorf("CountOffers() did not return valid number")
 	}
@@ -59,7 +60,8 @@ func TestContextIdIndex(t *testing.T) {
 		{3000, "This is offer number 3"},
 	}
 
-	context := NewContext(offers)
+	context := new(Context)
+	context.SetOffers(offers)
 
 	// Test that IDs do not appear by themselves in the index.
 	if _, ok := context.idIndex[500]; ok {
@@ -89,7 +91,8 @@ func TestContextTagIndex(t *testing.T) {
 		{"two", []int{2000, 3000}},
 	}
 
-	context := NewContext(offers)
+	context := new(Context)
+	context.SetOffers(offers)
 
 	for _, c := range cases {
 		expected, ok := context.tagIndex[c.tag]

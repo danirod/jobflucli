@@ -24,38 +24,56 @@ type Offer struct {
 
 // Context holds the application state.
 type Context struct {
+	location Location
 	offers   []Offer
 	idIndex  map[int]Offer
 	tagIndex map[string][]int
 }
 
-// NewContext will set up a new context object that represents these offers.
-func NewContext(offers []Offer) *Context {
-	// Create the context object.
-	context := &Context{
-		offers:   offers,
-		idIndex:  make(map[int]Offer),
-		tagIndex: make(map[string][]int),
-	}
+// updateIndices destroys and re-creates the id index and the tag index
+// associated with a context. These are useful for filtering offers and for
+// using offer IDs around in the application.
+func (context *Context) updateIndices() {
+	context.idIndex = make(map[int]Offer)
+	context.tagIndex = make(map[string][]int)
 
-	// presenceIndex tries to make faster building the tag index.
+	// presenceIndex tries to make faster guessing which tags are in tagIndex.
 	presenceIndex := make(map[string]bool)
-
-	// Build the index.
-	for _, offer := range offers {
+	for _, offer := range context.offers {
+		// Put the offer in the ID index.
 		context.idIndex[offer.ID] = offer
 
+		// Extract tags and put the offer in the tag index.
 		for _, tag := range offer.Tags {
 			if !presenceIndex[tag] {
-				// Initialise new ID array for this new tag.
+				// This tag was never added to the tagIndex in first place.
 				context.tagIndex[tag] = make([]int, 0)
 				presenceIndex[tag] = true
 			}
+
+			// Put this offer in the index associated with the tag.
 			context.tagIndex[tag] = append(context.tagIndex[tag], offer.ID)
 		}
 	}
+}
 
-	return context
+// SetOffers manually set the list of offers and updates the indices.
+func (context *Context) SetOffers(offers []Offer) {
+	context.offers = offers
+	context.updateIndices()
+}
+
+// SetOffersByLocation retrieves the offers in the given location, and
+// places them in the current context. It also will update the offers
+// index used by the application.
+func (context *Context) SetOffersByLocation(location Location) error {
+	offers, err := FetchOffers(location)
+	if err != nil {
+		return err
+	}
+	context.location = location
+	context.SetOffers(offers)
+	return nil
 }
 
 func (c *Context) GetOffer(id int) *Offer {
