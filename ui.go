@@ -14,6 +14,7 @@ type UserInterface struct {
 	statusWidget *tview.TextView
 
 	// Page widgets
+	locationsList  *LocationsTable
 	jobOffersList  *OfferList
 	jobOfferDetail *OfferView
 
@@ -53,6 +54,7 @@ func NewUserInterface(context *Context) *UserInterface {
 
 		layout: tview.NewFlex(),
 
+		locationsList:  NewLocationsTable(),
 		jobOffersList:  NewOfferList(),
 		jobOfferDetail: NewOfferView(),
 	}
@@ -64,10 +66,31 @@ func NewUserInterface(context *Context) *UserInterface {
 		ui.SwitchToOffer(offer)
 	})
 
+	ui.locationsList.SetSelectedFunc(func(row, col int) {
+		// Get the location and fetch offers for that location.
+		location := ui.locationsList.GetSelectedLocation()
+		if err := ui.context.SetOffersByLocation(location); err != nil {
+			panic(err)
+		}
+		ui.SwitchToList()
+	})
+
+	ui.locationsList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyRune && event.Rune() == 'q' {
+			ui.application.Stop()
+			return event
+		}
+		return event
+	})
+
 	ui.jobOffersList.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyRune && event.Rune() == 'q' {
 			ui.application.Stop()
-			return nil
+			return event
+		}
+		if event.Key() == tcell.KeyRune && event.Rune() == 'l' {
+			ui.SwitchToLocations()
+			return event
 		}
 		return event
 	})
@@ -79,6 +102,7 @@ func NewUserInterface(context *Context) *UserInterface {
 		return event
 	})
 
+	ui.pagesWidget.AddPage("locations", ui.locationsList, true, false)
 	ui.pagesWidget.AddPage("list", ui.jobOffersList, true, false)
 	ui.pagesWidget.AddPage("detail", ui.jobOfferDetail, true, false)
 	ui.pagesWidget.ShowPage("list")
@@ -108,11 +132,19 @@ func (ui *UserInterface) SetStatus(status string) {
 	})
 }
 
+func (ui *UserInterface) SwitchToLocations() {
+	ui.pagesWidget.SwitchToPage("locations")
+	ui.application.SetFocus(ui.locationsList)
+	ui.SetTitle("JobFluCli | Select a location")
+	ui.SetStatus("q:Quit   j/Up:MoveUp   k/Down:MoveDown")
+}
+
 func (ui *UserInterface) SwitchToList() {
 	ui.pagesWidget.SwitchToPage("list")
+	ui.jobOffersList.SetOfferList(ui.context.offers)
 	ui.application.SetFocus(ui.jobOffersList)
 	ui.SetTitle("JobFluCli | List of offers")
-	ui.SetStatus("q:Quit   j/Up:MoveUp   k/Down:MoveDown")
+	ui.SetStatus("q:Quit   j/Up:MoveUp   k/Down:MoveDown   l:SwitchLocation")
 }
 
 func (ui *UserInterface) SwitchToOffer(o *Offer) {
@@ -125,7 +157,6 @@ func (ui *UserInterface) SwitchToOffer(o *Offer) {
 
 // Run executes the graphical view for this application
 func (ui *UserInterface) Run() error {
-	ui.jobOffersList.SetOfferList(ui.context.offers)
 	ui.application.SetInputCapture(ui.globalApplicationKeybidings)
 	ui.application.SetRoot(ui.layout, true)
 	ui.application.SetFocus(ui.pagesWidget)
