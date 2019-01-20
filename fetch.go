@@ -41,7 +41,7 @@ var Locations = map[Location]LocationData{
 }
 
 // TargetServer points to the HTTP server to use for fetching offers.
-const TargetServer = "http://localhost:8000"
+const TargetServer = "https://www.jobfluent.com"
 
 // UserAgent keeps the user agent to be used in HTTP requests.
 const UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0"
